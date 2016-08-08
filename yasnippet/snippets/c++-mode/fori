@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: fori
+# key: fori
+# --
+for (${2:auto} ${1:it} = ${2:vector}.begin(); $1 != $2.end(); ++$1)
+{
+    $0
+}

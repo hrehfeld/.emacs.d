@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: include guards
+# key: guards
+# expand-env: ((dirname (let ((dirlist (split-string (file-name-directory (buffer-file-name)) "/"))) (car (last (butlast dirlist))))) (filename (upcase (replace-regexp-in-string "\\." "_" (file-name-nondirectory  (buffer-file-name))))))
+# --
+#ifndef ${2:$(upcase yas-text)}_${1:`(if buffer-file-name filename)`$(upcase yas-text)}
+#define ${2:$(upcase yas-text)}_$1
+
+namespace ${2:`(if buffer-file-name dirname)`}
+{
+	$0
+} // namespace $2
+
+#endif // ${2:$(upcase yas-text)}_$1
