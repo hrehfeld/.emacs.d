@@ -1,5 +1,5 @@
 ;;bug http://stackoverflow.com/questions/885793/emacs-error-when-calling-server-start
-(require 'server)
+;;(require 'server)
 (when (and (= emacs-major-version 23)
            (= emacs-minor-version 1)
            (equal window-system 'w32))
@@ -8,7 +8,7 @@
 					; on windows.
 
 ;;automatically start server for emacsclient
-(server-start)
+;;(server-start)
 
 ;;Making C-x k end an emacsclient session
 ; If your fingers are wired to using C-x k to kill off buffers (and
