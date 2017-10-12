@@ -1,5 +1,5 @@
 (use-package private-org)
-(req-package org
+(use-package org
   :ensure t
   :commands (
 			 org-agenda
@@ -64,13 +64,14 @@
 			 "DONE(d!/!)"
 			 )
 			(sequence 
-;			 "STARTED(s!)"
+;			 "STARTED(S!)"
 			 "WAITING(w@/!)"
 			 "DECIDE(D!/!)"
 			 "|"
 			 "CANCELLED(c@/!)"
-			 "DEFERRED(f@/!)")
-			(sequence "HABIT(h!)" "|" "DONE(!)" "Skip(s!)")
+			 "DEFERRED(f@/!)"
+			 "SOMEDAY(s!)")
+			(sequence "HABIT(h!)" "|" "DONE(!)")
 			))
 	(setq org-todo-state-tags-triggers
 		  (quote (("CANCELLED" ("CANCELLED" . t))
@@ -79,13 +80,17 @@
 				  ("TODO" ("WAITING") ("CANCELLED"))
 ;				  ("STARTED" ("ACTIVE" . t))
 				  ("DONE" ("WAITING") ("CANCELLED")))))
+
+  ;;; -----------------
+
 	(setq org-todo-keyword-faces
 		  '(
 			("TODO" . (:foreground "red" :underline t :weight bold))
-			("DONE" . (:foreground "lime green" :weight 'normal))
+			("DONE" . (:foreground "lime green" :weight normal))
 			("STARTED" . "#00ff00")
 			("WAITING" . "#c0cf00")
-			("CANCELLED" . (:foreground "RosyBrown3" :weight 'normal))
+			("CANCELLED" . (:foreground "RosyBrown3" :weight normal))
+			("SOMEDAY" . "#888888")
 			("HABIT" . "dark cyan")
 			; Packliste
 			("BESORGEN" . "#ff0000")
@@ -111,6 +116,27 @@
 
 (setq org-log-done 'time)
 (setq org-log-into-drawer t)
+(use-package org-expiry
+  :config
+  (defun my/org-expiry-insert-created-timestamp()
+	"Insert a CREATED property using org-expiry.el for TODO entries"
+	(when (or (string-prefix-p "CAPTURE-" (buffer-name))
+			  (member buffer-file-name org-agenda-files))
+	  (save-excursion
+		(org-expiry-insert-created)
+		)))
+
+  ;; Whenever a TODO entry is created, I want a timestamp
+  ;; Advice org-insert-todo-heading to insert a created timestamp using org-expiry
+  ;; (defadvice org-insert-todo-heading (after my/created-timestamp-advice activate)
+  ;; 	"Insert a CREATED property using org-expiry.el for TODO entries"
+  ;; 	(my/insert-created-timestamp)
+  ;; 	)
+  ;; Make it active
+  ;; (ad-activate 'org-insert-todo-heading)
+  (add-hook 'org-capture-before-finalize-hook 'my/org-expiry-insert-created-timestamp)
+  (add-hook 'org-insert-heading-hook 'my/org-expiry-insert-created-timestamp)
+  )
 
 (defvar my/insert-inactive-timestamp nil)
 
@@ -123,6 +149,7 @@
   (interactive)
 										;(org-insert-time-stamp nil t t nil nil nil)
   )
+;; -------------------------
 
 (defun my/insert-heading-inactive-timestamp ()
   (save-excursion
@@ -132,6 +159,8 @@
       (my/insert-inactive-timestamp))))
 
 ;(add-hook 'org-insert-heading-hook 'my/insert-heading-inactive-timestamp 'append)
+
+(setq org-insert-heading-respect-content t)
 
 (setq org-export-with-timestamps nil)
 
@@ -165,10 +194,12 @@
 	  (not (member (nth 2 (org-heading-components)) org-done-keywords)))
 	(setq org-refile-target-verify-function 'my/verify-refile-target)
 
-(setq org-startup-indented t
-	  org-startup-folded 'showall
-	  org-startup-with-inline-images t
-	  )
+(setq
+org-startup-indented t
+org-startup-folded 'showall
+; lets hang emacs if file is on non-accessible fs with long timeout...
+	  org-startup-with-inline-images nil
+ )
 	(setq org-hide-leading-stars t)
 
 (setq org-cycle-emulate-tab 'whitestart
@@ -179,7 +210,7 @@
 									)
 		  )
 
-(setq org-ctrl-k-protect-subtree t
+(setq org-ctrl-k-protect-subtree nil
 	  org-catch-invisible-edits t
 	  org-clone-delete-id t
 	  org-id-link-to-org-use-id t
@@ -202,7 +233,7 @@
 									 (tags . " %i %-12:c")
 									 ))
 
-
+;;-----------------
 
 										;agenda will always begin on the current day
 	(setq org-agenda-start-on-weekday nil)
@@ -269,7 +300,7 @@
                     user-defined-up
                     effort-up
                     category-keep)
-            (todo priority-down category-up effort-up)
+            (todo category-up priority-down effort-up)
             (tags priority-down category-up effort-up)
             (search priority-down category-up)))
 
@@ -305,6 +336,9 @@
 					)))
 
 	(setq org-agenda-category-icon-alist nil)
+
+
+;;--------------------------------
 
 	(setq my-org-agenda-category-icons
 		  '(
@@ -349,19 +383,13 @@
 	(setq org-capture-templates
 		  `(("t" "Todo" entry (file ,(my/org-file "personal.org")) "** TODO %?
 %i
-from %a
-%(my/org-clock-if-active \"while working on: \")
-
-:LOGBOOK:  
-- State \"TODO\"       from \"\"       %U
-:END:      
-
+")
+			("h" "Todo from here" entry (file ,(my/org-file "personal.org")) "** TODO %?
+from %a:
+%i
 ")
 			("r" "Reference" entry (file+headline "personal.org" "Reference") "** %?
 %i
-%U
-from %a
-%(my/org-clock-if-active \"while working on: \")
 ")))
 
 
@@ -547,5 +575,20 @@ from %a
                            (match-beginning 0)
                            (min (1+ (match-end 0)) end)))
                   (unless (bolp) (insert "\n"))))))))))))
+
+(defun my/org-set-property (property)
+  "Quick access to set property"
+  (interactive)
+  (let ((value (org-read-property-value property)))
+	(org-set-property property value)))
+
+(defvar my/org-property-key-context "Context")
+(defvar my/org-property-value-context-research "Research")
+(defvar my/org-property-value-location-home "Home")
+
+(defun my/get-org-property-setter (p)
+  (lambda () (interactive) (my/org-set-property p)))
+
+
   )
 (provide 'my-org)

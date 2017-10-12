@@ -26,7 +26,7 @@
  backup-by-copying t 
  ; don't litter my fs tree
  backup-directory-alist
- `((,tramp-file-name-regexp nil)
+ `((,tramp-file-name-regexp . nil)
    ("." . ,user-temporary-file-directory))
 )
 (setq

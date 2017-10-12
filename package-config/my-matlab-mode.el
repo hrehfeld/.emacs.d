@@ -1,5 +1,6 @@
 (use-package matlab-mode
-  :ensure matlab-mode
+  :disabled t
+  :ensure t
   :config (setq matlab-indent-function t)
 
   :mode (

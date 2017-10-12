@@ -42,9 +42,9 @@
     ;; 				"/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stddef.h")
 	(add-hook 'java-mode-hook (lambda () (semantic-mode 1)))
     )
-  :bind (
+;;  :bind (
 	 ;; 		("C-c p p" . helm-projectile-switch-project)
-	 )
+;;	 )
   )
 
 (provide 'my-semantic)

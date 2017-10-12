@@ -43,6 +43,9 @@
 		 :description "Two-way CalDAV synchronization for org-mode"
 		 :type github
 		 :pkgname "blaa/org-caldav")
+	  (:name smart-hungry-delete
+			 :type github
+			 :pkgname "hrehfeld/emacs-smart-hungry-delete")
 	  ;; (:name color-theme-dirac
 	  ;; 	   :type git
 	  ;; 	   :url "git://github.com/nicodds/color-theme-dirac.git"

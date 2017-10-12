@@ -21,7 +21,7 @@
 			  )
 			(defun my/cmake-project-dir-from-cmake-ide ()
 			  (when cmake-ide-build-dir
-				(message "setting build dir" cmake-ide-build-dir)
+				;; (message "setting build dir" cmake-ide-build-dir)
 				(setq cmake-project-build-directory cmake-ide-build-dir)))
 			;; (add-hook 'cmake-project-mode-hook
 			;; 							;(lambda () (run-with-timer 10 nil

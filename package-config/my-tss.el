@@ -5,6 +5,4 @@
 		 (setq tss-jump-to-definition-key "<f12>")
 		 (tss-config-default)
   )
-  :bind (
-		 )
 )

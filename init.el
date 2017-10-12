@@ -4,40 +4,27 @@
 ;; You may delete these explanatory comments.
 ;(package-initialize)
 
-;; if we need more debugging
-;(set 'message-log-max 1000)
-;(set 'max-specpdl-size (expt 2 16))
-;(set 'max-lisp-eval-depth (expt 2 16))
-;(set 'debug-on-error t)
+(let* ((init-load-path user-emacs-directory)
+       (init-name 'init-essential))
+       (require init-name (concat init-load-path (symbol-name init-name))))
 
-(setq custom-file "~/.emacs.d/custom.el")
-(if (file-exists-p custom-file)	(load custom-file))
-
-(setq my/init-dirs (list (concat user-emacs-directory "init-packages")
-						 (concat user-emacs-directory "init")))
-
-(mapc (lambda (d) (add-to-list 'load-path d)) my/init-dirs)
-
-;; (mapc (lambda (d) (byte-recompile-directory d 0 t)) my/init-dirs)
-;; (byte-recompile-file (buffer-file-name))
-
-
-(require 'my-package)
-(setq req-package-log-level 'trace)
+;;add custom packages to load path
+(use-package f
+  :defer nil
+  :ensure t
+  :config
+  (mapc (lambda (e)
+	  (when (file-readable-p e)
+	    (mapc
+	     (lambda (d) (add-to-list 'load-path d))
+	     (f-directories e))))
+		my/package-dirs)
+  )
 
 
-(global-set-key (kbd "<f8>") (lambda () (interactive) (load-file "~/.emacs.d/init.el")))
-
-;; for easier conversion
-;; (global-set-key (kbd "<f9>") (lambda () (interactive) (insert (concat "(provide '" (file-name-base (buffer-file-name)) ")\n"))))
 
 
-(defmacro use-packages (&rest pkgs)
-  (let ((forms (mapcar (lambda (pkg) `(use-package ,pkg)) pkgs)))
-	`(progn ,@forms)))
-
-
-;(use-package my-functions)
+;; (use-package my-functions)
 (use-package my-editing)
 (use-package my-display)
 (use-package my-security)
@@ -50,7 +37,12 @@
 
 
 
+
 (use-package private-safe-local-variables)
+
+(use-package python-keyring
+  :commands python-keyring/get-password-or-prompt
+  )
 
 ;Distinguish buffers of the same filename in Emacs
 (use-package uniquify
@@ -60,29 +52,28 @@
 
 
 (use-package my-helm)
-
 (use-package my-hydra)
-
-
+(use-package my-tramp)
 (use-package my-org)
-
+(use-package my-org-property-hydra)
  ;; my-org-clock
 (use-package org-clock-convenience :ensure t)
-
 (use-package private-org-caldav)
 (use-package my-org-contacts)
-
 (use-package my-org-babel)
 (use-package my-org-plantuml)
-
 (use-package my-org-context)
  ;;org-page
-
-
 (use-package orgbox :ensure t)
 
 (use-package undo-tree :ensure t)
 
+(use-package god-mode :ensure t
+  :disabled t
+  :bind ("<escape>" . god-local-mode)
+  )
+
+(use-package private-mail)
 (use-package my-mu4e)
 (use-package org-mu4e :if 'mu4e)
 
@@ -92,10 +83,16 @@
  private-calendar)
 
 
-(use-package
- my-el-get)
+;;(use-package my-el-get)
 
-(use-package my-subword)
+(use-package smart-hungry-delete
+  :ensure t
+  :defer nil
+  :bind (("<backspace>" . smart-hungry-delete-backward-char)
+		 ("C-d" . smart-hungry-delete-forward-char))
+  :config (smart-hungry-delete-add-default-hooks)
+  )
+
 
 (use-package magit
   :ensure t
@@ -104,9 +101,7 @@
   :ensure t
 )
 (use-packages
- my-tramp
  my-dired
-
  my-auto-dictionary
  my-cmake-project
  my-dtrt-indent
@@ -115,6 +110,8 @@
  ;;ggtags ; this was breaking helm
  ;;helm-cmd-t ; seems to break helm?!
  )
+(use-package my-subword)
+
 
 (use-package helm-ag :ensure t)
 (use-package helm-descbinds :ensure t)
@@ -176,17 +173,17 @@
  dircmp
  )
 (use-packages
- ;;evil-search-highlight-persist
- ;;flymake-checkers
- ;;flymake-css
- ;;flymake-haskell-multi
- ;;flymake-json
+ ;; evil-search-highlight-persist
+ ;; flymake-checkers
+ ;; flymake-css
+ ;; flymake-haskell-multi
+ ;; flymake-json
  my-flycheck
  my-flycheck-pos-tip
  glsl-mode
  gnuplot
  imgur
- jabber
+ ;;jabber
  ;;javadoc-help
  jedi
  json-mode
@@ -202,7 +199,7 @@
  my-projectile
  my-helm-projectile
  my-helm-flyspell
- my-helm-flx
+;; my-helm-flx
  my-realgud
  my-smart-tabs-mode
 ;; smart-tab
@@ -217,7 +214,7 @@
  )
 
 
-(use-package nxml-mode)
+(use-package my-nxml-mode)
 
 (use-packages
  my-info-look
@@ -228,9 +225,10 @@
  my-irony
  my-company-c-headers
  my-company-irony
+ my-dumb-jump
  my-rtags
  my-rtags-company
- ;my-cmake-ide
+ ;; my-cmake-ide
  my-elpy
  my-python
  my-mpc
@@ -239,8 +237,9 @@
 
 
 
-;not in elpa yet?
+;; not in elpa yet?
 (use-package hlsl-mode
+  :disabled t
   :mode "\\.hlsl\\'"
   :config
   (font-lock-add-keywords 'hlsl-mode
@@ -255,6 +254,16 @@
  ;; modeline at end because it might ask for confirmation
  my-smart-mode-line
  )
+
+(use-package   git-gutter :ensure t)
+(use-package helm-dash :ensure t)
+(use-packages
+;;  dracula-theme
+  pdf-tools
+  paradox
+  )
+
+(use-package private-circe)
 
 (req-package-finish)
 

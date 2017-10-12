@@ -1,8 +1,8 @@
 ;;------------------------------------------------------------------------------
 ;; highlight-changes-mode
 ;;------------------------------------------------------------------------------
-;set initial state to passive
-(setq highlight-changes-initial-state 1)
+;;set initial state to passive
+;;(setq highlight-changes-initial-state 1)
 ;bind it to esc-esc-h
 (global-set-key (kbd "C-c DEL") 'highlight-changes-visible-mode)
 (global-set-key (kbd "C-c <next>") 'highlight-changes-rotate-faces)

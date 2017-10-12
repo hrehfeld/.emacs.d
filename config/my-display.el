@@ -4,6 +4,8 @@
 (show-paren-mode 1)
 (setq show-paren-style 'mixed)
 
+;; echo keystrokes earlier
+(setq echo-keystrokes 0.2)
 
 (defface line-length-limit
   '((((background dark)) (:underline "#ff0")))
